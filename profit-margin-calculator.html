@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free Profit Margin Calculator for Online Sellers</title>
+<meta name="description" content="Calculate profit, profit margin and markup in seconds. Free calculator for online sellers, with fees and shipping included.">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--text:#1a1d21;--muted:#5f6670;--line:#dfe3e8;--accent:#0b7a5a;--accent-text:#fff;--bad:#c0392b}
+@media (prefers-color-scheme:dark){:root{--bg:#111418;--card:#1b1f25;--text:#eceff3;--muted:#9aa3ae;--line:#2c323a;--accent:#2fbf94;--accent-text:#0b1510;--bad:#ff7a6b}}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+main{max-width:560px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:1.5rem;margin:8px 0 4px}
+h2{font-size:1.1rem;margin:28px 0 8px}
+p{margin:0 0 12px;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:16px}
+label{display:block;font-size:.9rem;margin:12px 0 4px}
+input{width:100%;padding:12px;font-size:1rem;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text)}
+input:focus{outline:2px solid var(--accent);border-color:transparent}
+button{width:100%;margin-top:16px;padding:13px;font-size:1rem;font-weight:600;border:0;border-radius:10px;background:var(--accent);color:var(--accent-text);cursor:pointer}
+.results{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:16px}
+.res{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center}
+.res span{display:block;font-size:.75rem;color:var(--muted)}
+.res strong{font-size:1.1rem}
+.neg{color:var(--bad)}
+details{border-bottom:1px solid var(--line);padding:10px 0}
+summary{cursor:pointer;font-weight:600}
+details p{margin:8px 0 0}
+code{background:var(--bg);padding:2px 6px;border-radius:6px}
+</style>
+</head>
+<body>
+<main>
+  <h1>Profit Margin Calculator</h1>
+  <p>Enter your costs and selling price to see your real profit, margin and markup.</p>
+
+  <div class="card">
+    <label for="price">Selling price</label>
+    <input id="price" type="number" inputmode="decimal" min="0" step="any" placeholder="e.g. 50">
+
+    <label for="cost">Product cost</label>
+    <input id="cost" type="number" inputmode="decimal" min="0" step="any" placeholder="e.g. 20">
+
+    <label for="extra">Shipping and other costs (optional)</label>
+    <input id="extra" type="number" inputmode="decimal" min="0" step="any" placeholder="e.g. 5">
+
+    <label for="fee">Platform and payment fees, % of price (optional)</label>
+    <input id="fee" type="number" inputmode="decimal" min="0" step="any" placeholder="e.g. 10">
+
+    <button id="calc" type="button">Calculate</button>
+
+    <div class="results" aria-live="polite">
+      <div class="res"><span>Profit</span><strong id="profit">-</strong></div>
+      <div class="res"><span>Margin</span><strong id="margin">-</strong></div>
+      <div class="res"><span>Markup</span><strong id="markup">-</strong></div>
+    </div>
+  </div>
+
+  <h2>How profit margin is calculated</h2>
+  <p>Profit = selling price - (product cost + shipping and other costs + fees).</p>
+  <p>Margin = profit / selling price x 100. Markup = profit / total cost x 100. Margin tells you how much of each sale you keep. Markup tells you how much you add on top of your cost.</p>
+
+  <h2>Frequently asked questions</h2>
+  <details><summary>What is a good profit margin for online sellers?</summary>
+    <p>It depends on the product. Many online stores aim for a net margin of 15 to 30 percent after ads, fees and shipping.</p></details>
+  <details><summary>What is the difference between margin and markup?</summary>
+    <p>Margin is profit as a share of the selling price. Markup is profit as a share of your cost. A 50 percent markup equals a 33 percent margin.</p></details>
+  <details><summary>Should I include shipping and fees?</summary>
+    <p>Yes. Leaving them out makes your profit look bigger than it really is.</p></details>
+</main>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  function num(id) { var v = parseFloat($(id).value); return isNaN(v) ? 0 : v; }
+  function money(n) { return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+  function calculate() {
+    var price = num("price");
+    if (price <= 0) {
+      $("profit").textContent = $("margin").textContent = $("markup").textContent = "-";
+      return;
+    }
+    var fees = price * num("fee") / 100;
+    var totalCost = num("cost") + num("extra") + fees;
+    var profit = price - totalCost;
+    var margin = profit / price * 100;
+    var markup = totalCost > 0 ? profit / totalCost * 100 : 0;
+
+    $("profit").textContent = money(profit);
+    $("margin").textContent = margin.toFixed(1) + "%";
+    $("markup").textContent = totalCost > 0 ? markup.toFixed(1) + "%" : "-";
+
+    ["profit", "margin", "markup"].forEach(function (id) {
+      $(id).classList.toggle("neg", profit < 0);
+    });
+  }
+
+  $("calc").addEventListener("click", calculate);
+  ["price", "cost", "extra", "fee"].forEach(function (id) {
+    $(id).addEventListener("input", calculate);
+  });
+})();
+</script>
+</body>
+</html>
